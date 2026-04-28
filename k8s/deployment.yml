@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-metrics-ml
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-metrics-ml
+  template:
+    metadata:
+      labels:
+        app: springboot-metrics-ml
+    spec:
+      containers:
+        - name: ml-app
+          image: silmiaazeez/springboot-metrics-ml:latest
+          ports:
+           - containerPort: 8000
