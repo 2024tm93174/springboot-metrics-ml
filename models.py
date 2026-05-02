@@ -74,14 +74,6 @@ plt.figure(figsize=(12, 8))
 
 for i, metric in enumerate(metrics, 1):
     plt.subplot(2, 2, i)
-    # plt.scatter(
-    #     range(len(df_pivot)),
-    #     df_pivot[metric],
-    #     c=df_pivot["anomaly"],  # color anomalies
-    #     cmap="coolwarm",
-    #     label=metric
-    # )
-
     plt.scatter(
         df_pivot.index,      # real timestamps
         df_pivot["cpu"],

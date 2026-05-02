@@ -25,7 +25,7 @@ while True:
         preds = model.predict(df)
 
         if -1 in preds:
-            print("🚨 Anomaly detected!")
+            print(" Anomaly detected!")
 	# send alert
 
     time.sleep(60)
