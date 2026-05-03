@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 # Load your historical data
-df = pd.read_csv('metrics_data.csv')
+df = pd.read_csv('dataset/metrics_data.csv')
 
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 

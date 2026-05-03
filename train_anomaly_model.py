@@ -6,7 +6,7 @@ import matplotlib.dates as mdates
 import joblib
 
 # load dataset
-df = pd.read_csv("metrics_data.csv")
+df = pd.read_csv("dataset/metrics_data.csv")
 
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
@@ -43,7 +43,7 @@ model = IsolationForest(
 df_pivot["anomaly"] = model.fit_predict(X)
 
 # save model
-joblib.dump(model, "model.pkl")
+joblib.dump(model, "models/model.pkl")
 
 # anomaly label
 df_pivot["anomaly"] = df_pivot["anomaly"].map({1:0, -1:1})
@@ -116,5 +116,5 @@ for i, metric in enumerate(metrics, 1):
     plt.tight_layout()
     plt.show()
 
-    df_pivot.to_csv("metrics_with_anomalies.csv")
+    df_pivot.to_csv("output/metrics_with_anomalies.csv")
 

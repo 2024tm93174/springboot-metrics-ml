@@ -43,6 +43,6 @@ for metric in metrics:
             })
 
 df = pd.DataFrame(rows)
-file_exists = os.path.isfile("metrics_data_2.csv")
-df.to_csv("metrics_data_2.csv", mode='a',index=False, header=not file_exists)
-print("Metrics exported to metrics_data_2.csv")
+file_exists = os.path.isfile("dataset/metrics_data_latest.csv")
+df.to_csv("dataset/metrics_data_latest.csv", mode='a',index=False, header=not file_exists)
+print("Metrics exported to dataset/metrics_data_latest.csv")

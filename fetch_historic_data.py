@@ -39,11 +39,11 @@ df_new = pd.DataFrame(rows)
 print(df_new.head())
 
 # Append to existing CSV
-df_old = pd.read_csv("metrics_data_2.csv")
+df_old = pd.read_csv("dataset/metrics_data_latest.csv")
 print(df_old.head())
 
 #df_final = pd.concat([df_old, df_new], ignore_index=True)
 
-#df_final.to_csv("metrics_data_2.csv", index=False)
+#df_final.to_csv("dataset/metrics_data_latest.csv", index=False)
 
 print("Historical request-rate data appended successfully.")

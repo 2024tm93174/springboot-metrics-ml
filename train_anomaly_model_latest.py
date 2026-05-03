@@ -6,7 +6,7 @@ import matplotlib.dates as mdates
 import joblib
 
 # load dataset
-df = pd.read_csv("metrics_data_2.csv")
+df = pd.read_csv("dataset/metrics_data_latest.csv")
 print(df.head())
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
@@ -54,7 +54,7 @@ model = IsolationForest(
 df_pivot["anomaly"] = model.fit_predict(X)
 
 # save model
-joblib.dump(model, "model_2.pkl")
+joblib.dump(model, "models/model_latest.pkl")
 
 # anomaly label
 df_pivot["anomaly"] = df_pivot["anomaly"].map({1:0, -1:1})
@@ -68,12 +68,12 @@ if not anomalies.empty:
     print("Anomalies detected!")
     # Write a trigger file for GitHub Actions
     os.makedirs("output", exist_ok=True)
-    anomalies.to_csv("output/anomalies_2.csv", index=False)
+    anomalies.to_csv("output/anomalies_latest.csv", index=False)
     # Set environment variable for GitHub Actions
-    with open("output/anomaly_flag_2.txt", "w") as f:
+    with open("output/anomaly_flag_latest.txt", "w") as f:
         f.write("1")
 else:
-    with open("output/anomaly_flag_2.txt", "w") as f:
+    with open("output/anomaly_flag_latest.txt", "w") as f:
         f.write("0")
     print("No anomalies detected.")
 
@@ -110,5 +110,5 @@ for i, metric in enumerate(metrics, 1):
     plt.tight_layout()
     plt.show()
 
-    df_pivot.to_csv("metrics_with_anomalies_2.csv")
+    df_pivot.to_csv("output/metrics_with_anomalies_latest.csv")
 

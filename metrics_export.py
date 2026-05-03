@@ -57,6 +57,6 @@ file_exists = os.path.isfile(current_file)
 df.to_csv(current_file,mode='a',index=False,  header=not file_exists) """
 
 
-file_exists = os.path.isfile("metrics_data.csv")
-df.to_csv("metrics_data.csv", mode='a',index=False, header=not file_exists)
-print("Metrics exported to metrics_data.csv")
+file_exists = os.path.isfile("dataset/metrics_data.csv")
+df.to_csv("dataset/metrics_data.csv", mode='a',index=False, header=not file_exists)
+print("Metrics exported to dataset/metrics_data.csv")

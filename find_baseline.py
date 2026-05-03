@@ -11,7 +11,7 @@ metric_map = {
 feature_order = ["requests", "memory", "threads", "cpu"]
 
 # Load CSV
-df = pd.read_csv("metrics_data.csv")
+df = pd.read_csv("dataset/metrics_data.csv")
 #print(df.columns)
 #print(df.head())
 

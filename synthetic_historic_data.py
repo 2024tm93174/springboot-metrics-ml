@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load CSV
-df = pd.read_csv("metrics_data_2.csv")
+df = pd.read_csv("dataset/metrics_data_latest.csv")
 
 df["timestamp"] = pd.to_datetime(df["timestamp"])
 
@@ -44,6 +44,6 @@ df_final = pd.concat(
 )
 
 # Save updated file
-df_final.to_csv("metrics_data_2.csv", index=False)
+df_final.to_csv("dataset/metrics_data_latest.csv", index=False)
 
 print("Synthetic historical request-rate data added successfully.")

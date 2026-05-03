@@ -1,3 +1,6 @@
+import smtplib
+from email.mime.text import MIMEText
+from turtle import setx
 import requests
 import joblib
 import pandas as pd
@@ -8,11 +11,12 @@ import time
 import os
 
 last_alert_time = 0
-ALERT_COOLDOWN = 120  # seconds
+ALERT_COOLDOWN = 60  # seconds
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-model = joblib.load("model_2.pkl")
+model = joblib.load("model_latest.pkl")
 PROM_URL = "http://localhost:30090/api/v1/query"
 feature_order = ["requests", "memory", "threads", "cpu"]
+APP_PASSWORD = os.getenv("EMAIL_PASS")
 
 def get_prometheus_data():
     queries = {
@@ -82,10 +86,10 @@ def identify_root_cause(data):
 
 def choose_remediation(reason):
     if "High CPU Usage" in reason:
-        return "Scale deployment / restart pod"
+        return "Scale deployment"
 
     elif "Memory Leak" in reason:
-        return "Restart pod / memory cleanup"
+        return "Restart pod"
 
     elif "High Thread Count" in reason:
         return "Restart application"
@@ -114,6 +118,31 @@ def trigger_github_action(reason, action):
     )
     print("GitHub Action Triggered:", response.status_code)
 
+def send_alert(reason):
+    print("ALERT: Anomaly Detected!")
+
+    sender_email = "ai.remediation.project.2026@gmail.com"
+    receiver_email = "ai.remediation.project.2026@gmail.com"
+    #password = "tmhcdxfubmahxuuy"  # NOT your normal password
+    password =APP_PASSWORD
+    
+    subject = "Anomaly Detected in Spring Boot System"
+    body = f"Anomaly detected!\n\nReason:\n{reason}"
+
+    msg = MIMEText(body)
+    msg["Subject"] = subject
+    msg["From"] = sender_email
+    msg["To"] = receiver_email
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(sender_email, password)
+        server.sendmail(sender_email, receiver_email, msg.as_string())
+        server.quit()
+        print("Email alert sent!")
+    except Exception as e:
+        print("Email failed:", e)
 
 while True:
     # 1. Get current snapshot
@@ -134,7 +163,8 @@ while True:
 
          current_time = time.time()
          if current_time - last_alert_time > ALERT_COOLDOWN:
-             # trigger_github_action(reason, action)
+             send_alert(reason)
+             trigger_github_action(reason, action)
              last_alert_time = current_time
          else:
              print("Anomaly detected, but cooldown active")
