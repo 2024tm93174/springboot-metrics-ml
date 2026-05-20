@@ -46,7 +46,7 @@ X = df_pivot[["requests","memory","threads","cpu"]]
 
 # train Isolation Forest
 model = IsolationForest(
-    n_estimators=100,
+    n_estimators=200,
     contamination=0.02,
     random_state=42
 )

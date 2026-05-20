@@ -9,14 +9,20 @@ from datetime import datetime
 import requests
 import time
 import os
+import shap
+import numpy as np
 
-last_alert_time = 0
-ALERT_COOLDOWN = 60  # seconds
+
+ALERT_COOLDOWN = 30  # seconds
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-model = joblib.load("model_latest.pkl")
+model = joblib.load("models/model_latest.pkl")
 PROM_URL = "http://localhost:30090/api/v1/query"
 feature_order = ["requests", "memory", "threads", "cpu"]
 APP_PASSWORD = os.getenv("EMAIL_PASS")
+explainer = shap.Explainer(model)
+last_alert_time = 0
+confidence_level = True
+CONFIDENCE_THRESHOLD = 0.95
 
 def get_prometheus_data():
     queries = {
@@ -39,6 +45,19 @@ def get_prometheus_data():
     return current_data
     
 print("Starting Real-Time Monitoring... (Ctrl+C to stop)")
+
+def detect_anomaly_with_shap(df):
+         # Explain WHY
+        shap_values = explainer(df)
+
+        # Get top contributing features
+        feature_importance = np.abs(shap_values.values[0])
+        top_features = df.columns[np.argsort(-feature_importance)]
+
+        print(" Top contributing features:")
+        for f in top_features[:3]:
+            print(f, df[f].values[0])   
+
 
 BASELINES = {
     'requests':0.02938,
@@ -72,8 +91,6 @@ def identify_root_cause(data):
         return "High CPU Usage"
 
     elif main_issue == "memory":
-        #if data["requests"] > BASELINES["requests"]:
-           #return "Request Flood causing Memory Pressure"
         return "Memory Leak"
 
     elif main_issue == "threads":
@@ -118,16 +135,20 @@ def trigger_github_action(reason, action):
     )
     print("GitHub Action Triggered:", response.status_code)
 
-def send_alert(reason):
-    print("ALERT: Anomaly Detected!")
+def send_alert(reason,confidence_level,action):
+    print("send_alert: Anomaly Detected!")
 
     sender_email = "ai.remediation.project.2026@gmail.com"
-    receiver_email = "ai.remediation.project.2026@gmail.com"
-    #password = "tmhcdxfubmahxuuy"  # NOT your normal password
+    receiver_email = "ai.remediation.project.2026@gmail.com"   
     password =APP_PASSWORD
+
+    if confidence_level:
+        subject = "AUTO-REMEDIATION TRIGGERED: Anomaly Detected in Spring Boot System"
+        body = f"Anomaly detected!\n\nReason:\n{reason}\n\nAction:\n{action}"
+    else:
+        subject = "ALERT: Anomaly Detected in Spring Boot System - Low Confidence"
+        body = f"Possible anomaly detected but confidence is below auto-remediation threshold."
     
-    subject = "Anomaly Detected in Spring Boot System"
-    body = f"Anomaly detected!\n\nReason:\n{reason}"
 
     msg = MIMEText(body)
     msg["Subject"] = subject
@@ -160,12 +181,29 @@ while True:
          print(reason)
          action = choose_remediation(reason)
          print("action:", action)
+         score = model.decision_function(df)[0]
+         print(f"Raw Anomaly Score : {score:.4f}")
+         confidence = 1 / (1 + np.exp(score * 40))  # sigmoid conversion
+         print(f"Anomaly confidence: {confidence:.2f}")
 
          current_time = time.time()
          if current_time - last_alert_time > ALERT_COOLDOWN:
-             send_alert(reason)
-             trigger_github_action(reason, action)
-             last_alert_time = current_time
+             
+             if confidence >= CONFIDENCE_THRESHOLD:
+                 print(f"Confidence {confidence:.2%} >= {CONFIDENCE_THRESHOLD:.2%}")
+                 print("AUTO-REMEDIATION triggered")
+                 confidence_level = True
+                 #send_alert(reason,confidence_level,action)
+                 #trigger_github_action(reason, confidence_level,action)
+                 #detect_anomaly_with_shap(df)
+             else:
+                print(f"Confidence {confidence:.2%} < {CONFIDENCE_THRESHOLD:.2%}")
+                print("LOW CONFIDENCE - Human alert only, no auto-remediation") 
+                confidence_level = False               
+                #send_alert(reason,confidence_level,confidence,)
+
+             last_alert_time = current_time    
+
          else:
              print("Anomaly detected, but cooldown active")
 
@@ -173,4 +211,4 @@ while True:
         print(f"[{timestamp}] System Healthy")
 
     # 4. Wait for the next interval (match your Prometheus resolution)
-    time.sleep(30)
+    time.sleep(10)

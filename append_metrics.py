@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load old CSV
-df = pd.read_csv("metrics_data.csv")
+df = pd.read_csv("dataset/metrics_data.csv")
 
 # Remove old request counter rows
 df = df[
@@ -9,6 +9,6 @@ df = df[
 ]
 
 # Save updated CSV
-df.to_csv("metrics_data_2.csv", index=False)
+df.to_csv("dataset/metrics_data_latest.csv", index=False)
 print("Updated CSV saved successfully.")
 print(df["metric"].unique())

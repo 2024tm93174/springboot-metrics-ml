@@ -5,7 +5,6 @@ import os
 
 PROM_URL = "http://localhost:30090/api/v1/query_range"
 
-# Metrics to collect
 metrics = [
     "rate(http_server_requests_seconds_count[1m])",
     "jvm_memory_used_bytes",

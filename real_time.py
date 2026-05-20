@@ -9,7 +9,7 @@ import requests
 import time
 
 # Load the model
-model = joblib.load("model_latest.pkl")
+model = joblib.load("models/model_latest.pkl")
 PROM_URL = "http://localhost:30090/api/v1/query"
 feature_order = ["requests", "memory", "threads", "cpu"]
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
